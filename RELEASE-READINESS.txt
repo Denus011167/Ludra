@@ -1,0 +1,13 @@
+LUDRA 1.0.0 RC1 — release readiness
+
+Derived from approved Test147 through the cleaned release-candidate package.
+Only two displayed version strings, AppStream release version, and build version check changed in application/installation files. No UI design or launch logic changed.
+
+BEFORE PUBLIC RELEASE:
+- Verify provenance and redistribution rights for Moonhouse-based wordmark, controller, icons, six wallpapers, and historical collage (which may reproduce earlier logos and other imagery).
+- Add a truthful project source-code license file and verify the MIT metadata claim.
+- Review AppStream/Flathub metadata, application ID, permissions and screenshots.
+- Run a clean end-to-end Flatpak installation and launch on Bazzite and test main features.
+- Publish final 1.0.0 only after all checks pass.
+
+This RC1 bundle is not legally cleared for public distribution.

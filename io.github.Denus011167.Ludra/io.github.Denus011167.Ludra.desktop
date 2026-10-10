@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Ludra
+Comment=Your games. One place.
+Exec=ludra
+Icon=io.github.Denus011167.Ludra
+Terminal=false
+Type=Application
+Categories=Game;
+StartupNotify=true

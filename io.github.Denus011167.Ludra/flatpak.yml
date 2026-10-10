@@ -1,0 +1,49 @@
+app-id: io.github.Denus011167.Ludra
+runtime: org.gnome.Platform
+runtime-version: '49'
+sdk: org.gnome.Sdk
+command: ludra
+
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --device=dri
+  - --filesystem=home:ro
+  # Common mount points for Steam libraries on extra disks/partitions.
+  - --filesystem=/mnt:ro
+  - --filesystem=/media:ro
+  - --filesystem=/run/media:ro
+  - --talk-name=org.freedesktop.portal.Desktop
+
+modules:
+  - name: ludra
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 main.py /app/bin/ludra
+      - install -Dm644 io.github.Denus011167.Ludra.desktop /app/share/applications/io.github.Denus011167.Ludra.desktop
+      - install -Dm644 io.github.Denus011167.Ludra.metainfo.xml /app/share/metainfo/io.github.Denus011167.Ludra.metainfo.xml
+      - install -Dm644 ludra-icon.png /app/share/icons/hicolor/512x512/apps/io.github.Denus011167.Ludra.png
+      - install -Dm644 ludra-icon-64.png /app/share/icons/hicolor/64x64/apps/io.github.Denus011167.Ludra.png
+      - install -Dm644 ludra-icon-128.png /app/share/icons/hicolor/128x128/apps/io.github.Denus011167.Ludra.png
+      - install -Dm644 ludra-icon-256.png /app/share/icons/hicolor/256x256/apps/io.github.Denus011167.Ludra.png
+      - install -Dm644 ludra-final-logo-header.png /app/share/ludra/ludra-final-logo-header.png
+      - install -Dm644 ludra-about-medium.png /app/share/ludra/ludra-about-medium.png
+      - install -Dm644 ludra-behind-the-scenes.png /app/share/ludra/ludra-behind-the-scenes.png
+      - install -Dm644 background-dawn.jpg /app/share/ludra/background-dawn.jpg
+      - install -Dm644 background-thumb-dawn.jpg /app/share/ludra/background-thumb-dawn.jpg
+      - install -Dm644 background-aurora-blue.jpg /app/share/ludra/background-aurora-blue.jpg
+      - install -Dm644 background-thumb-aurora-blue.jpg /app/share/ludra/background-thumb-aurora-blue.jpg
+      - install -Dm644 background-lavender-mist.jpg /app/share/ludra/background-lavender-mist.jpg
+      - install -Dm644 background-thumb-lavender-mist.jpg /app/share/ludra/background-thumb-lavender-mist.jpg
+      - install -Dm644 background-rose-glow.jpg /app/share/ludra/background-rose-glow.jpg
+      - install -Dm644 background-thumb-rose-glow.jpg /app/share/ludra/background-thumb-rose-glow.jpg
+      - install -Dm644 background-sage-light.jpg /app/share/ludra/background-sage-light.jpg
+      - install -Dm644 background-thumb-sage-light.jpg /app/share/ludra/background-thumb-sage-light.jpg
+      - install -Dm644 background-twilight-glass.jpg /app/share/ludra/background-twilight-glass.jpg
+      - install -Dm644 background-thumb-twilight-glass.jpg /app/share/ludra/background-thumb-twilight-glass.jpg
+    sources:
+      - type: dir
+        path: .
