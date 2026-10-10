@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_ID="io.github.Denus011167.Ludra"
-EXPECTED_VERSION="1.0.0-rc1"
+EXPECTED_VERSION="1.0.0-rc2"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$PROJECT_DIR/io.github.Denus011167.Ludra"
 MANIFEST="flatpak.yml"
