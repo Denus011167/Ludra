@@ -1,0 +1,11 @@
+Ludra 1.0.0 RC1 — GitHub screenshot preparation
+
+These six PNG files are genuine screenshots supplied by the project owner, unchanged.
+
+Pending before making the repository public:
+- Obtain a genuine main-gallery screenshot with cleared/licensed demonstration covers.
+- The fictional game-cover gallery is a generated mockup, NOT an authentic app capture, and is excluded.
+- Review rights in the About collage and any third-party artwork.
+- The Cover sources screenshot shows a masked API key; confirm it is safe, or retake with field empty.
+
+Suggested location in GitHub: screenshots/ (upload PNGs, not this note unless desired).
