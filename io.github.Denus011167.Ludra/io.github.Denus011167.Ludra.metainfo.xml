@@ -13,5 +13,5 @@ Documents/Ludra-Workshop/Release-Packages/RC2-Source/
   </description>
   <launchable type="desktop-id">io.github.Denus011167.Ludra.desktop</launchable>
   <provides><binary>ludra</binary></provides>
-  <releases><release version="1.0.0-rc1" date="2026-10-10"/></releases>
+  <releases><release version="1.0.0-rc2" date="2026-10-10"/></releases>
 </component>
