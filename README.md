@@ -1,5 +1,70 @@
-**Current release:** 1.0.0 RC3 (pre-release). Tested on Bazzite Linux with KDE Plasma and Wayland. Other Linux distributions and Steam configurations may require additional testing.
+# Ludra
 
-**Download Ludra:** [Ludra 1.0.0 RC3](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3)
+**Your games. One place.**
 
-The source repository and standalone Flatpak release are in **pre-publication review**. Availability on GitHub does not imply availability on Flathub or Bazaar. Flathub distribution, if pursued, requires a separate review and compliance with its submission policies.
+Ludra is a visual game launcher for Linux, built with Python and GTK4. It brings Steam games and manually added games together in a customizable gallery.
+
+**Current release:** [1.0.0 RC3 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3).
+
+Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux distributions and Steam installations have not yet been comprehensively tested.
+
+## Features
+
+- Discover and launch games from a local Steam library.
+- Add non-Steam games manually with launch commands.
+- Choose cover artwork, including custom images and optional SteamGridDB integration.
+- Customize wallpapers, gallery layout, sorting and appearance.
+- Hide and restore entries in the game library.
+- Use keyboard shortcuts and configurable launcher preferences.
+
+## What's improved in RC3
+
+- Improved GTK window styling for consistent rounded corners across User and System Flatpak installations on the tested Bazzite setup.
+- Refined game-cover corners and artwork edge handling.
+- Further visual polish and interface refinements.
+- Additional stability and compatibility testing.
+
+## Install
+
+Download **[Ludra 1.0.0 RC3](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3)** from GitHub Releases.
+
+The release provides:
+- `Ludra.flatpak` — ready-to-install application bundle.
+- `Ludra-1.0.0-RC3-Source.zip` — application source and build script.
+
+Follow [INSTALL.md](INSTALL.md) for requirements, installation, update limitations and removal.
+
+The standalone Flatpak bundle does **not** automatically receive updates.
+
+## Source layout
+
+- `io.github.Denus011167.Ludra/main.py` — Python/GTK application.
+- `io.github.Denus011167.Ludra/flatpak.yml` — local Flatpak build manifest, **not an approved Flathub submission**.
+- `io.github.Denus011167.Ludra/*.desktop` and `*.metainfo.xml` — desktop and AppStream metadata.
+- `build.sh` — local Bazzite build/install script; review it before running, as it can replace the installed user Flatpak.
+- `migrate-from-steamgallery.sh` — optional migration helper.
+- `LICENSE` — MIT license covering original Ludra source code.
+- `ASSET-LICENSING.md` — provenance and licensing notes for bundled artwork and typefaces.
+- `screenshots/` — application screenshots.
+
+## Licensing and acknowledgements
+
+Original Ludra source code: **MIT**, © 2026 Denus01. See [LICENSE](LICENSE).
+
+The MIT license does not automatically apply to third-party fonts, game-cover artwork, trademarks or media. See [ASSET-LICENSING.md](ASSET-LICENSING.md) for details.
+
+Ludra uses a Moonhouse-based rendered wordmark; the Moonhouse font file is not included in the reviewed source package.
+
+Ludra's development involved substantial assistance from ChatGPT, and several bundled illustrations and wallpapers were generated with ChatGPT. This involvement is disclosed for transparency.
+
+## Feedback
+
+Bug reports, suggestions and testing feedback are welcome through the repository's [Issues](https://github.com/Denus011167/Ludra/issues) page.
+
+Please avoid sharing API keys, personal account details or sensitive logs in issue reports.
+
+## Publication status
+
+Ludra 1.0.0 RC3 is a **pre-release** available through [GitHub Releases](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3).
+
+Availability on GitHub does not imply availability on Flathub or Bazaar. Flathub distribution, if pursued, requires a separate review and compliance with its submission policies.
