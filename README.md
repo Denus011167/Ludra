@@ -1,4 +1,6 @@
-# Ludra
+**Current release:** 1.0.0 RC2 (pre-release). RC3 is being prepared.
+
+Tested on Bazzite Linux. Other Linux distributions and Steam configurations may behave differently.# Ludra
 
 **Your games. One place.**
 
