@@ -11,6 +11,8 @@ finish-args:
   - --socket=fallback-x11
   - --socket=pulseaudio
   - --device=dri
+  - --nofilesystem=xdg-config/gtk-3.0
+  - --nofilesystem=xdg-config/gtk-4.0
   - --filesystem=home:ro
   # Common mount points for Steam libraries on extra disks/partitions.
   - --filesystem=/mnt:ro

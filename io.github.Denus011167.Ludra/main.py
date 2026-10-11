@@ -17,7 +17,7 @@ gi.require_version("GdkPixbuf", "2.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf, Gio, GLib
 
 APP_ID = "io.github.Denus011167.Ludra"
-APP_VERSION = "1.0.0-rc2"
+APP_VERSION = "1.0.0-rc3"
 
 NON_GAME_NAMES = {
     "proton", "proton experimental", "proton hotfix",
@@ -700,9 +700,6 @@ class GameCard(Gtk.Button):
             self.add_css_class("hovered")
         else:
             self.remove_css_class("hovered")
-        # Paint-only transform: allocation and responsive column layout do not change.
-        scale = 1.075 if active else 1.0
-        self.set_scale_x(scale); self.set_scale_y(scale)
 
     def hover_enter(self, *_):
         self._pointer_over = True
@@ -743,6 +740,11 @@ class GameCard(Gtk.Button):
                     normalized = normalize_cover_pixbuf(pix, 600, 900)
                 if normalized:
                     pix = normalized
+                w, h = pix.get_width(), pix.get_height()
+                dx, dy = int(w * 0.025), int(h * 0.025)
+                if dx and dy:
+                    cropped = pix.new_subpixbuf(dx, dy, w - 2*dx, h - 2*dy)
+                    pix = cropped.scale_simple(w, h, GdkPixbuf.InterpType.BILINEAR)
                 self.picture.set_paintable(Gdk.Texture.new_for_pixbuf(rounded_cover_pixbuf(pix)))
         except Exception: pass
         return GLib.SOURCE_REMOVE
@@ -1028,7 +1030,6 @@ class Ludra(Gtk.Application):
         self._flow_layout_timer = 0
         self._flow_columns = 0
         self._gallery_rows = []
-        self._last_layout_diag = None
         self._last_viewport_width = -1
 
         # Gtk.Widget allocation changes do not reliably emit notify::width.
@@ -1401,6 +1402,16 @@ class Ludra(Gtk.Application):
         save = Gtk.Button(label="Save API key"); save.add_css_class("ludra-toolbar-control")
         def save_key(_b): self.settings.__setitem__("steamgriddb_api_key", entry.get_text().strip()) or save_json(settings_path(), self.settings)
         save.connect("clicked", save_key); keyrow.append(save); covers.append(keyrow)
+        get_key = Gtk.Button(label="Get key ↗")
+        get_key.add_css_class("ludra-toolbar-control")
+        get_key.set_halign(Gtk.Align.START)
+        def open_steamgriddb_api_page(_button):
+            try:
+                Gio.AppInfo.launch_default_for_uri("https://www.steamgriddb.com/profile/preferences/api", None)
+            except Exception as exc:
+                print(f"Could not open SteamGridDB API page: {exc}")
+        get_key.connect("clicked", open_steamgriddb_api_page)
+        covers.append(get_key)
         stack.add_named(covers, "covers")
 
         # Test49: the last loose Preferences sub-window is gone.  Reuse the
@@ -1529,7 +1540,7 @@ class Ludra(Gtk.Application):
             return lab
 
         about_line("Your games. One place.", "ludra-about-tagline")
-        about_line("Version 1.0.0 RC2", "dim-label", 7)
+        about_line("Version 1.0.0 RC3", "dim-label", 7)
         about_line("A simple, visual game launcher for Linux.", None, 1)
         about_line("Created by Denus01", None, 5)
         about_line("With assistance by ChatGPT", "dim-label")
@@ -2028,7 +2039,7 @@ class Ludra(Gtk.Application):
 
         tagline = Gtk.Label(label="Your games. One place.")
         box.append(tagline)
-        version = Gtk.Label(label="Version 1.0.0 RC2")
+        version = Gtk.Label(label="Version 1.0.0 RC3")
         version.add_css_class("dim-label")
         box.append(version)
         desc = Gtk.Label(label="A simple, visual game launcher for Linux.")
@@ -2623,35 +2634,6 @@ class Ludra(Gtk.Application):
             self._apply_flow_layout()
         return GLib.SOURCE_CONTINUE
 
-    def _diag_widget(self, name, widget):
-        if widget is None:
-            return f"{name}=none"
-        try:
-            req = widget.get_size_request()
-            measured = widget.measure(Gtk.Orientation.HORIZONTAL, -1)
-            return (f"{name}: alloc={widget.get_width()} "
-                    f"req={req[0]} min={measured[0]} nat={measured[1]}")
-        except Exception as e:
-            return f"{name}: <diag error {e}>"
-
-    def _print_layout_diag(self, columns, viewport_width):
-        parts = [
-            self._diag_widget("window", self.window),
-            self._diag_widget("scroll", self.scroll),
-            self._diag_widget("gallery", self.flow),
-            self._diag_widget("search", self.search),
-        ]
-        if self._gallery_rows:
-            parts.append(self._diag_widget("row0", self._gallery_rows[0]))
-        if self._visible_cards:
-            parts.append(self._diag_widget("card0", self._visible_cards[0]))
-        signature = (self.window.get_width(), viewport_width, columns,
-                     tuple(x for x in parts))
-        if signature != self._last_layout_diag:
-            self._last_layout_diag = signature
-            print("[V37 RESIZE] columns=", columns, " | ", " | ".join(parts),
-                  flush=True)
-
     def _apply_flow_layout(self):
         self._flow_layout_timer = 0
         if not self._visible_cards:
@@ -2676,7 +2658,6 @@ class Ludra(Gtk.Application):
         card_width = max(min_card_width, min(max_card_width,
                          int((available - gap * (columns - 1)) // columns)))
         card_height = round(card_width * 1.5)
-        self._print_layout_diag(columns, viewport_width)
 
         # Rebuilding is only needed when the number of columns changes.
         # At all other widths, update the existing cards in place to avoid
@@ -2752,7 +2733,7 @@ class Ludra(Gtk.Application):
         strength = max(0.0, min(1.0, float(self.settings.get("shadow_intensity", 42)) / 100.0))
         hover = min(0.92, strength * 1.7)
         self._shadow_setting_provider.load_from_data((
-            ".cover-frame { border-radius: 12px; box-shadow: 0 5px 10px rgba(0,0,0,%.3f); }\n"
+            ".cover-frame { border-radius: 5.167%%; box-shadow: 0 5px 10px rgba(0,0,0,%.3f); }\n"
             ".game-button:hover .cover-frame, .game-button.hovered .cover-frame, "
             ".game-button:focus-visible .cover-frame { box-shadow: 0 10px 20px rgba(0,0,0,%.3f); }"
         ) % (strength, hover))
@@ -3131,11 +3112,11 @@ class Ludra(Gtk.Application):
         .game-button { background: transparent; border: none; padding: 0; margin: 0; min-width: 0; min-height: 0; }
         .game-card { padding: 0; margin: 0; min-width: 0; min-height: 0; }
         .cover-frame { box-shadow: 0 5px 10px rgba(0,0,0,.42); }
-        .cover-frame { border-radius: 12px; background: transparent; }
-        .cover-artwork { border-radius: 12px; }
+        .cover-frame { border-radius: 5.167%; background: transparent; }
+        .cover-artwork { border-radius: 5.167%; }
         .game-button .cover-frame { min-width: 0; }
         .game-button .cover-frame picture { background: transparent; }
-        .cover-hover-glow { background: rgba(255,255,255,0); border-radius: 12px; }
+        .cover-hover-glow { background: transparent; border-radius: 5.167%; }
         .game-button:hover .cover-hover-glow, .game-button.hovered .cover-hover-glow { background: rgba(255,255,255,.17); }
         .game-title { color: #e9eef5; font-size: 13px; margin-left: 2px; margin-right: 2px; }
         .game-title-bg-dark { color: #ffffff; background: rgba(27,33,49,.59); border-radius: 8px; padding: 3px 6px; }
@@ -3148,6 +3129,26 @@ class Ludra(Gtk.Application):
         grid { background: transparent; }
         """ + "\n.ludra-main-window { " + window_bg_css + " }\n" + "\n.ludra-preferences-window { " + preferences_bg_css + " }\n" + "\n.ludra-collage-viewer { " + preferences_bg_css + " }\n"))
         Gtk.StyleContext.add_provider_for_display(self.window.get_display(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        # Experiment: override host GTK CSS for window corners only.
+        if not hasattr(self, "_window_corners_provider"):
+            self._window_corners_provider = Gtk.CssProvider()
+            self._window_corners_provider.load_from_data("""
+                window.ludra-main-window,
+                window.ludra-preferences-window,
+                window.ludra-collage-viewer {
+                    border-radius: 14px;
+                }
+                window.ludra-main-window > decoration,
+                window.ludra-preferences-window > decoration,
+                window.ludra-collage-viewer > decoration {
+                    border-radius: 14px;
+                }
+            """)
+            Gtk.StyleContext.add_provider_for_display(
+                self.window.get_display(),
+                self._window_corners_provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_USER + 1
+            )
         self._apply_shadow_setting_css()
 
 
