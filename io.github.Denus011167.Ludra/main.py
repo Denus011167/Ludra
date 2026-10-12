@@ -18,7 +18,7 @@ gi.require_version("GdkPixbuf", "2.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf, Gio, GLib
 
 APP_ID = "io.github.Denus011167.Ludra"
-APP_VERSION = "1.0.0-rc3"
+APP_VERSION = "1.0.0-rc4"
 
 NON_GAME_NAMES = {
     "proton", "proton experimental", "proton hotfix",
@@ -1608,7 +1608,7 @@ class Ludra(Gtk.Application):
             return lab
 
         about_line("Your games. One place.", "ludra-about-tagline")
-        about_line("Version 1.0.0 RC3", "dim-label", 7)
+        about_line("Version 1.0.0 RC4", "dim-label", 7)
         about_line("A simple, visual game launcher for Linux.", None, 1)
         about_line("Created by Denus01", None, 5)
         about_line("With assistance by ChatGPT", "dim-label")
@@ -2119,7 +2119,7 @@ class Ludra(Gtk.Application):
 
         tagline = Gtk.Label(label="Your games. One place.")
         box.append(tagline)
-        version = Gtk.Label(label="Version 1.0.0 RC3")
+        version = Gtk.Label(label="Version 1.0.0 RC4")
         version.add_css_class("dim-label")
         box.append(version)
         desc = Gtk.Label(label="A simple, visual game launcher for Linux.")
