@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import hashlib
 import os
 import re
 import shutil
@@ -754,6 +755,7 @@ class GameCard(Gtk.Button):
 
     def show_context_menu(self, x=None, y=None):
         pop = Gtk.Popover.new(); pop.set_parent(self); pop.set_has_arrow(True); pop.set_position(Gtk.PositionType.BOTTOM)
+        pop.add_css_class("ludra-cover-menu")
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4); box.set_margin_top(6); box.set_margin_bottom(6); box.set_margin_start(6); box.set_margin_end(6)
         actions = [
             ("▶  Launch", lambda: self.app.launch_game(self.game)),
@@ -771,6 +773,7 @@ class GameCard(Gtk.Button):
 
         def append_action(text, cb):
             b = Gtk.Button(label=text)
+            b.add_css_class("ludra-cover-menu-action")
             b.set_has_frame(False)
             b.set_halign(Gtk.Align.FILL)
             b.set_hexpand(True)
@@ -816,6 +819,8 @@ class Ludra(Gtk.Application):
             self.settings["background"] = legacy_backgrounds[current_bg]
             save_json(settings_path(), self.settings)
         self.settings.setdefault("background", "Ludra Dawn")
+        self.settings.setdefault("background_brightness", 100)
+        self.settings.setdefault("background_contrast", 100)
         self.settings.setdefault("hidden_games", [])
         self.settings.setdefault("steam_launch_overrides", {})
         # Migrate the former "hide" preference to the new close-on-launch behavior.
@@ -1480,6 +1485,69 @@ class Ludra(Gtk.Application):
         none.connect("clicked", choose_inline_background, "None"); bg_buttons["None"] = none
         none_index = custom_index + 1; bg_grid.attach(none, none_index % 3, none_index // 3, 1, 1)
 
+        # RC4: small, quiet controls occupy the spare third-row grid cell.
+        bg_controls = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
+        bg_controls.set_valign(Gtk.Align.CENTER)
+        bg_controls.set_halign(Gtk.Align.FILL)
+        bg_controls.set_hexpand(True)
+        bg_controls.add_css_class("ludra-background-controls")
+        adjustment_widgets = {}
+
+        def update_background_adjustment(_scale, setting, number):
+            value = int(round(_scale.get_value()))
+            self.settings[setting] = value
+            number.set_text(f"{value}%")
+            save_json(settings_path(), self.settings)
+            # Debounce continuous mouse movement to avoid expensive image work.
+            if getattr(self, "_background_adjustment_timer", 0):
+                GLib.source_remove(self._background_adjustment_timer)
+            self._background_adjustment_timer = GLib.timeout_add(260, self._apply_background_adjustment)
+
+        for label_text, key, low, high in (
+            ("Brightness", "background_brightness", 50, 120),
+            ("Contrast", "background_contrast", 75, 125),
+        ):
+            heading = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+            title = Gtk.Label(label=label_text, xalign=0)
+            title.set_hexpand(True)
+            title.add_css_class("ludra-background-adjustment-label")
+            number = Gtk.Label(label=f'{self.settings.get(key, 100)}%')
+            number.add_css_class("ludra-background-adjustment-value")
+            heading.append(title); heading.append(number)
+            bg_controls.append(heading)
+            scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, low, high, 1)
+            scale.set_draw_value(False)
+            scale.set_hexpand(True)
+            scale.set_size_request(105, -1)
+            scale.set_value(max(low, min(high, int(self.settings.get(key, 100)))))
+            scale.add_css_class("ludra-background-adjustment-scale")
+            scale.connect("value-changed", update_background_adjustment, key, number)
+            bg_controls.append(scale)
+            adjustment_widgets[key] = (scale, number)
+
+        reset_adjustments = Gtk.Button(label="Reset")
+        reset_adjustments.set_halign(Gtk.Align.END)
+        reset_adjustments.add_css_class("ludra-background-adjustment-reset")
+        def reset_background_adjustments(_button):
+            # Set both values before applying, so we only redraw once.
+            for key, (scale, number) in adjustment_widgets.items():
+                scale.set_value(100)
+            if getattr(self, "_background_adjustment_timer", 0):
+                GLib.source_remove(self._background_adjustment_timer)
+                self._background_adjustment_timer = 0
+            self.settings["background_brightness"] = 100
+            self.settings["background_contrast"] = 100
+            save_json(settings_path(), self.settings)
+            self.apply_css()
+        reset_adjustments.connect("clicked", reset_background_adjustments)
+        bg_controls.append(reset_adjustments)
+        bg_grid.attach(bg_controls, 2, 2, 1, 1)
+        # Keep None genuinely disabled, not visually adjustable.
+        old_refresh_selection = refresh_inline_background_selection
+        def refresh_inline_background_selection():
+            old_refresh_selection()
+            bg_controls.set_sensitive(self.settings.get("background", "Ludra Dawn") != "None")
+
         refresh_inline_background_selection()
         # Let the asynchronous Custom… chooser update the selected outline when
         # it returns, without creating another settings window.
@@ -1571,8 +1639,19 @@ class Ludra(Gtk.Application):
             # Show only the artwork, scaled to the available area, and Close.
             viewer = Gtk.Window(transient_for=d, modal=False)
             viewer.set_title("Ludra — Behind the scenes")
-            viewer.set_default_size(1040, 760)
-            viewer.set_size_request(480, 340)
+            # RC4: size the viewer from the artwork rather than letting the
+            # window stretch independently and leave large empty bands.
+            # KDE/Wayland does not reliably enforce top-level aspect hints, so
+            # this gallery viewer has a compact, non-resizable presentation.
+            try:
+                collage_pix = GdkPixbuf.Pixbuf.new_from_file(collage_path)
+                image_ratio = collage_pix.get_width() / max(1, collage_pix.get_height())
+            except Exception:
+                image_ratio = 16.0 / 9.0
+            image_width = min(960, round(620 * image_ratio))
+            image_height = max(1, round(image_width / image_ratio))
+            viewer.set_default_size(image_width + 20, image_height + 90)
+            viewer.set_resizable(False)
             viewer.add_css_class("ludra-collage-viewer")
             # Match the Preferences window's real GTK titlebar and controls.
             collage_header = Gtk.HeaderBar()
@@ -1594,13 +1673,14 @@ class Ludra(Gtk.Application):
             # Test140: a thin, translucent Ludra-style frame around the picture.
             frame = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
             frame.add_css_class("ludra-collage-frame")
-            frame.set_hexpand(True)
-            frame.set_vexpand(True)
+            frame.set_halign(Gtk.Align.CENTER)
+            frame.set_valign(Gtk.Align.CENTER)
             artwork = Gtk.Picture.new_for_filename(collage_path)
             artwork.set_content_fit(Gtk.ContentFit.CONTAIN)
             artwork.set_can_shrink(True)
-            artwork.set_hexpand(True)
-            artwork.set_vexpand(True)
+            artwork.set_size_request(image_width, image_height)
+            artwork.set_halign(Gtk.Align.CENTER)
+            artwork.set_valign(Gtk.Align.CENTER)
             frame.append(artwork)
             outer.append(frame)
             close_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -2738,6 +2818,45 @@ class Ludra(Gtk.Application):
             ".game-button:focus-visible .cover-frame { box-shadow: 0 10px 20px rgba(0,0,0,%.3f); }"
         ) % (strength, hover))
 
+    def _apply_background_adjustment(self):
+        self._background_adjustment_timer = 0
+        self.apply_css()
+        return GLib.SOURCE_REMOVE
+
+    def _adjusted_wallpaper_path(self, source):
+        """Preserve original artwork; cache brightness/contrast adjusted copies."""
+        brightness = max(50, min(120, int(self.settings.get("background_brightness", 100))))
+        contrast = max(75, min(125, int(self.settings.get("background_contrast", 100))))
+        if brightness == 100 and contrast == 100:
+            return source
+        source = Path(source)
+        stamp = str(source.stat().st_mtime_ns)
+        digest = hashlib.sha256(f"{source}:{stamp}:{brightness}:{contrast}".encode()).hexdigest()[:16]
+        cache_dir = app_data_dir() / "wallpaper-cache"
+        cache_dir.mkdir(exist_ok=True)
+        output = cache_dir / f"adjusted-{digest}.png"
+        if output.exists():
+            return output
+        pix = GdkPixbuf.Pixbuf.new_from_file_at_scale(str(source), 1920, 1200, True)
+        rgba = pix if pix.get_has_alpha() else pix.add_alpha(False, 0, 0, 0)
+        pixels = bytearray(rgba.get_pixels())
+        b, c = brightness / 100.0, contrast / 100.0
+        table = bytes(max(0, min(255, round(((v - 127.5) * c + 127.5) * b))) for v in range(256))
+        # RGBA is four-byte aligned. Transform RGB in three fast slices;
+        # preserve alpha and do not loop over millions of pixels in Python.
+        for channel in range(3):
+            pixels[channel::4] = pixels[channel::4].translate(table)
+        result = GdkPixbuf.Pixbuf.new_from_bytes(
+            GLib.Bytes.new(bytes(pixels)), GdkPixbuf.Colorspace.RGB, True,
+            8, rgba.get_width(), rgba.get_height(), rgba.get_rowstride())
+        result.savev(str(output), "png", [], [])
+        # Keep only a handful of variants as the sliders are explored.
+        cached = sorted(cache_dir.glob("adjusted-*.png"), key=lambda f: f.stat().st_mtime, reverse=True)
+        for stale in cached[12:]:
+            try: stale.unlink()
+            except OSError: pass
+        return output
+
     def apply_css(self):
         if hasattr(self, "bg_picture"):
             bg_files = {
@@ -2750,14 +2869,18 @@ class Ludra(Gtk.Application):
             }
             selected_bg = self.settings.get("background", "Ludra Dawn")
             custom_bg = self.settings.get("custom_background", "")
+            original_bg = (Path(custom_bg) if selected_bg == "Custom" and custom_bg and Path(custom_bg).is_file()
+                           else Path("/app/share/ludra") / bg_files.get(selected_bg, "background-dawn.jpg"))
+            try:
+                display_bg = self._adjusted_wallpaper_path(original_bg) if selected_bg != "None" else original_bg
+            except Exception as exc:
+                print(f"Ludra: wallpaper adjustment failed: {exc}")
+                display_bg = original_bg
             if selected_bg == "None":
                 self.bg_picture.set_opacity(0.0)
             else:
                 self.bg_picture.set_opacity(1.0)
-                if selected_bg == "Custom" and custom_bg and Path(custom_bg).is_file():
-                    self.bg_picture.set_filename(custom_bg)
-                else:
-                    self.bg_picture.set_filename("/app/share/ludra/" + bg_files.get(selected_bg, "background-dawn.jpg"))
+                self.bg_picture.set_filename(str(display_bg))
         # Paint one continuous background on the GtkWindow CSS node. This is
         # the crucial Test37 experiment: unlike a Gtk.Picture in the content
         # area, the window node also sits behind the native titlebar child.
@@ -2767,11 +2890,7 @@ class Ludra(Gtk.Application):
             window_bg_css = "background-image: none; background-color: #303238;"
             preferences_bg_css = "background-image: none; background-color: rgba(61, 66, 75, .98);"
         else:
-            if selected_bg == "Custom" and custom_bg and Path(custom_bg).is_file():
-                bg_uri = Path(custom_bg).resolve().as_uri()
-            else:
-                bg_name = bg_files.get(selected_bg, "background-dawn.jpg")
-                bg_uri = "file:///app/share/ludra/" + bg_name
+            bg_uri = Path(display_bg).resolve().as_uri()
             window_bg_css = (
                 'background-image: url("' + bg_uri.replace('"', '\\"') + '"); '
                 'background-size: cover; background-position: center; '
@@ -2779,7 +2898,12 @@ class Ludra(Gtk.Application):
             )
             preferences_bg_css = window_bg_css
 
-        css = Gtk.CssProvider()
+        if not hasattr(self, "_ludra_style_provider"):
+            self._ludra_style_provider = Gtk.CssProvider()
+            Gtk.StyleContext.add_provider_for_display(
+                self.window.get_display(), self._ludra_style_provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        css = self._ludra_style_provider
         css.load_from_data(("""
         .background-image { opacity: 0; }
         .background-shade {
@@ -2833,6 +2957,11 @@ class Ludra(Gtk.Application):
         .ludra-header-separator { min-height: 25px; margin: 5px 2px; background: rgba(255,255,255,.20); }
         .background-choice { padding: 5px; border-radius: 10px; background: rgba(0, 0, 0, 0.28); }
         .background-choice-selected { outline: 2px solid @accent_color; outline-offset: 1px; }
+        .ludra-background-controls { padding: 5px 0 0 0; }
+        .ludra-background-adjustment-label { color: rgba(245, 247, 251, .88); font-size: 11px; }
+        .ludra-background-adjustment-value { color: rgba(245, 247, 251, .72); font-size: 11px; }
+        .ludra-background-adjustment-scale { margin: 0 0 2px 0; }
+        .ludra-background-adjustment-reset { padding: 2px 8px; min-height: 22px; font-size: 11px; border-radius: 8px; background: rgba(55, 62, 76, .38); }
         .custom-background-preview { border-radius: 7px; background: alpha(@view_fg_color, .08); }
         /* Test110: Preferences now reuse Ludra's chosen wallpaper and sit
            on lighter glass panels instead of a nearly opaque dark slab. */
@@ -3109,6 +3238,32 @@ class Ludra(Gtk.Application):
         /* Temporary 0.1.20-test2 comparison controls: deliberately tiny. */
         .ludra-onoff-pill { min-width: 36px; min-height: 18px; padding: 0 5px; border-radius: 999px; font-size: 9px; font-weight: 700; }
         headerbar { min-height: 0; }
+        /* RC4 preview: softer charcoal cover context menu. Actions unchanged. */
+        popover.ludra-cover-menu > contents {
+            background: rgba(73, 80, 94, .97);
+            color: #f5f6fa;
+            border: 1px solid rgba(235, 240, 250, .20);
+            border-radius: 13px;
+            box-shadow: 0 8px 22px rgba(13, 17, 25, .30);
+        }
+        popover.ludra-cover-menu > arrow {
+            background: rgba(73, 80, 94, .97);
+            border-color: rgba(235, 240, 250, .20);
+        }
+        popover.ludra-cover-menu button.ludra-cover-menu-action {
+            color: #f5f6fa;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+        popover.ludra-cover-menu button.ludra-cover-menu-action:hover,
+        popover.ludra-cover-menu button.ludra-cover-menu-action:focus-visible {
+            background: rgba(210, 222, 240, .18);
+        }
+        popover.ludra-cover-menu separator {
+            background: rgba(235, 240, 250, .20);
+        }
         .game-button { background: transparent; border: none; padding: 0; margin: 0; min-width: 0; min-height: 0; }
         .game-card { padding: 0; margin: 0; min-width: 0; min-height: 0; }
         .cover-frame { box-shadow: 0 5px 10px rgba(0,0,0,.42); }
@@ -3128,7 +3283,6 @@ class Ludra(Gtk.Application):
         .game-button:focus-visible .cover-frame { box-shadow: 0 10px 20px rgba(0,0,0,.72); }
         grid { background: transparent; }
         """ + "\n.ludra-main-window { " + window_bg_css + " }\n" + "\n.ludra-preferences-window { " + preferences_bg_css + " }\n" + "\n.ludra-collage-viewer { " + preferences_bg_css + " }\n"))
-        Gtk.StyleContext.add_provider_for_display(self.window.get_display(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         # Experiment: override host GTK CSS for window corners only.
         if not hasattr(self, "_window_corners_provider"):
             self._window_corners_provider = Gtk.CssProvider()
