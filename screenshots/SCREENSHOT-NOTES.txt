@@ -1,11 +1,26 @@
-Ludra 1.0.0 RC1 — GitHub screenshot preparation
+# Ludra — Screenshots
 
-These six PNG files are genuine screenshots supplied by the project owner, unchanged.
+Screenshots of Ludra, a visual game launcher for Linux built with Python and GTK4.
 
-Pending before making the repository public:
-- Obtain a genuine main-gallery screenshot with cleared/licensed demonstration covers.
-- The fictional game-cover gallery is a generated mockup, NOT an authentic app capture, and is excluded.
-- Review rights in the About collage and any third-party artwork.
-- The Cover sources screenshot shows a masked API key; confirm it is safe, or retake with field empty.
+**Current release:** [Ludra 1.0.0 RC3](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3)
 
-Suggested location in GitHub: screenshots/ (upload PNGs, not this note unless desired).
+## About these screenshots
+
+The screenshots in this directory were supplied by the project owner and show Ludra's interface during development and testing.
+
+They illustrate aspects of the application such as its preferences, appearance customization, game-cover management and other interface features.
+
+Some screenshots may show earlier development versions and may differ slightly from the latest release.
+
+## Artwork and privacy
+
+- Game-cover artwork and third-party images remain subject to their respective owners' rights.
+- Generated mockups should not be presented as genuine application screenshots.
+- Screenshots containing API keys, account information or other sensitive data should be reviewed before publication.
+- Artwork used in the About or Behind the Scenes views may have separate licensing considerations.
+
+For more information, see [ASSET-LICENSING.md](../ASSET-LICENSING.md).
+
+## Latest release
+
+Download Ludra from [GitHub Releases](https://github.com/Denus011167/Ludra/releases).
