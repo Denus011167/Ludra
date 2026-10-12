@@ -36,7 +36,7 @@ Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux 
 
 ## Install
 
-Download ****Current release:** [1.0.0 RC4 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4)**  from GitHub Releases.
+Download [Ludra 1.0.0 RC4](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4) from GitHub Releases.
 
 The release provides:
 - `Ludra.flatpak` — ready-to-install application bundle.
