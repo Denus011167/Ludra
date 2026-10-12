@@ -4,7 +4,7 @@
 
 Ludra is a visual game launcher for Linux, built with Python and GTK4. It brings Steam games and manually added games together in a customizable gallery.
 
-**Current release:** [1.0.0 RC3 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3).
+**Current release:** [1.0.0 RC4 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4).
 
 Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux distributions and Steam installations have not yet been comprehensively tested.
 
@@ -17,6 +17,16 @@ Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux 
 - Hide and restore entries in the game library.
 - Use keyboard shortcuts and configurable launcher preferences.
 
+
+## What's new in RC4
+
+- Added brightness and contrast sliders for built-in and custom wallpapers.
+- Added a Reset button to restore default wallpaper adjustments.
+- Wallpaper adjustments are saved and restored between sessions.
+- Refined the right-click game-cover menus with softer slate-gray styling.
+- Improved the Behind the Scenes picture viewer with a fixed-size window.
+
+
 ## What's improved in RC3
 
 - Improved GTK window styling for consistent rounded corners across User and System Flatpak installations on the tested Bazzite setup.
@@ -26,11 +36,11 @@ Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux 
 
 ## Install
 
-Download **[Ludra 1.0.0 RC3](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3)** from GitHub Releases.
+Download ****Current release:** [1.0.0 RC4 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4)**  from GitHub Releases.
 
 The release provides:
 - `Ludra.flatpak` — ready-to-install application bundle.
-- `Ludra-1.0.0-RC3-Source.zip` — application source and build script.
+- `Ludra-1.0.0-RC4-Source.zip` — application source and build script.
 
 Follow [INSTALL.md](INSTALL.md) for requirements, installation, update limitations and removal.
 
@@ -65,6 +75,6 @@ Please avoid sharing API keys, personal account details or sensitive logs in iss
 
 ## Publication status
 
-Ludra 1.0.0 RC3 is a **pre-release** available through [GitHub Releases](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3).
+Ludra 1.0.0 RC4 is a **pre-release** available through [1.0.0 RC4 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4).
 
 Availability on GitHub does not imply availability on Flathub or Bazaar. Flathub distribution, if pursued, requires a separate review and compliance with its submission policies.
