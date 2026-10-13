@@ -1,6 +1,6 @@
 # Installing Ludra on Linux
 
-**Release:** Ludra 1.0.0 RC1  
+**Release:** Latest published release (RC5 in preparation)  
 **Architecture:** x86_64  
 **Status:** Release candidate, tested on two Bazzite computers. Not yet published as a stable release.
 
@@ -15,12 +15,12 @@ Ludra is a visual Steam and manually added game launcher for Linux.
 
 ## Install the downloadable Flatpak bundle
 
-1. Download `Ludra-1.0.0-RC1-x86_64.flatpak` from the Ludra release **Assets** section when the release is published.
+1. Visit [GitHub Releases](https://github.com/Denus011167/Ludra/releases), open the latest **published** release, and download its `.flatpak` bundle from **Assets**. Use the filename actually provided there.
 2. On Bazzite, open the downloaded file in the graphical Flatpak installer and choose a **User** installation.
 3. Alternatively, from the folder containing the downloaded bundle, run:
 
    ```bash
-   flatpak install --user ./Ludra-1.0.0-RC1-x86_64.flatpak
+   flatpak install --user ./NAME-OF-DOWNLOADED-BUNDLE.flatpak
    ```
 
    Read Flatpak's confirmation and runtime dependency prompts before accepting. If a required runtime cannot be found, configure a trusted Flatpak remote providing it; do not download runtime files from unknown sites.
@@ -56,4 +56,4 @@ The original Ludra source code is licensed under MIT. Fonts, images, and other a
 
 Repository: https://github.com/Denus011167/Ludra
 
-Before public publication, the maintainer must finish the asset-rights review, verify release file contents, and make the repository/release public intentionally.
+Before publishing a new release, the maintainer should review asset rights, verify the source archive and Flatpak bundle contents, and test the exact uploaded bundle. Being available on GitHub does not mean Ludra has been accepted by Flathub or Bazaar.
