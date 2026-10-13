@@ -4,7 +4,7 @@
 
 Ludra is a visual game launcher for Linux, built with Python and GTK4. It brings Steam games and manually added games together in a customizable gallery.
 
-**Current published release:** [1.0.0 RC4 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4). **RC5 is being prepared**; downloads will be linked once published.
+**Current published release:** [1.0.0 RC4 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4). **RC5 has passed local Bazzite testing and is being prepared for publication**; downloads will be linked once published.
 
 Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux distributions and Steam installations have not yet been comprehensively tested.
 
@@ -24,6 +24,7 @@ Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux 
 - Added subtle hover feedback to slider handles.
 - Corrected Refresh button hover artifacts while retaining its visual feedback.
 - Added a central `VERSION` file to synchronize version information during local builds.
+- Validated local RC5 installation from a standalone `.flatpak` bundle using a user installation on Bazzite.
 
 ## What's new in RC4
 
@@ -53,7 +54,7 @@ Exact asset names are shown on each release page; use the names actually listed 
 
 Follow [INSTALL.md](INSTALL.md) for requirements, installation, update limitations and removal.
 
-The standalone Flatpak bundle does **not** automatically receive updates.
+The standalone Flatpak bundle does **not** automatically receive updates. If both User and System installations exist, check which one you're running; see [INSTALL.md](INSTALL.md).
 
 ## Source layout
 
