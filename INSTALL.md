@@ -1,8 +1,8 @@
 # Installing Ludra on Linux
 
-**Release:** Ludra 1.0.0 RC1  
+**Release:** Latest published release (RC5 in preparation)  
 **Architecture:** x86_64  
-**Status:** Release candidate, tested on two Bazzite computers. Not yet published as a stable release.
+**Status:** Pre-release software, tested on Bazzite. The RC5 standalone bundle has also been installed successfully as a User Flatpak; other distribution and Steam-installation combinations are not yet verified.
 
 Ludra is a visual Steam and manually added game launcher for Linux.
 
@@ -15,12 +15,12 @@ Ludra is a visual Steam and manually added game launcher for Linux.
 
 ## Install the downloadable Flatpak bundle
 
-1. Download `Ludra-1.0.0-RC1-x86_64.flatpak` from the Ludra release **Assets** section when the release is published.
-2. On Bazzite, open the downloaded file in the graphical Flatpak installer and choose a **User** installation.
+1. Visit [GitHub Releases](https://github.com/Denus011167/Ludra/releases), open the latest **published** release, and download its `.flatpak` bundle from **Assets**. Use the filename actually provided there.
+2. On Bazzite, open the downloaded file in the graphical Flatpak installer and choose a **User** installation. If the installer reports an existing installation, first check whether Ludra is installed for the User, System, or both.
 3. Alternatively, from the folder containing the downloaded bundle, run:
 
    ```bash
-   flatpak install --user ./Ludra-1.0.0-RC1-x86_64.flatpak
+   flatpak install --user ./NAME-OF-DOWNLOADED-BUNDLE.flatpak
    ```
 
    Read Flatpak's confirmation and runtime dependency prompts before accepting. If a required runtime cannot be found, configure a trusted Flatpak remote providing it; do not download runtime files from unknown sites.
@@ -35,6 +35,28 @@ The installer has been tested by the project owner on two Bazzite computers. Oth
 ## Existing installations
 
 Installing the bundle with the same application ID can replace an existing user installation. Back up settings and manually added game entries before changing installations. This RC uses the application ID `io.github.Denus011167.Ludra`.
+
+## User vs. System installations
+
+Flatpak supports separate **User** and **System** installations. If Ludra appears to remain installed after an uninstall, a copy may exist in the other installation scope. Before removing anything, check:
+
+```bash
+flatpak list --app --columns=application,installation | grep -i ludra
+```
+
+To remove a User installation only:
+
+```bash
+flatpak uninstall --user io.github.Denus011167.Ludra
+```
+
+To remove a System installation only (only if you intend to):
+
+```bash
+flatpak uninstall --system io.github.Denus011167.Ludra
+```
+
+Neither command should be used blindly, and **do not use `--delete-data`** if you want to preserve your settings and manually added entries. The recommended installation method for the GitHub bundle is **User**.
 
 ## Updating
 
@@ -56,4 +78,4 @@ The original Ludra source code is licensed under MIT. Fonts, images, and other a
 
 Repository: https://github.com/Denus011167/Ludra
 
-Before public publication, the maintainer must finish the asset-rights review, verify release file contents, and make the repository/release public intentionally.
+Before publishing a new release, the maintainer should review asset rights, verify the source archive and Flatpak bundle contents, and test the exact uploaded bundle. Being available on GitHub does not mean Ludra has been accepted by Flathub or Bazaar.
