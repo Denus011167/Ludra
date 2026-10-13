@@ -2,7 +2,7 @@
 
 **Release:** Latest published release (RC5 in preparation)  
 **Architecture:** x86_64  
-**Status:** Release candidate, tested on two Bazzite computers. Not yet published as a stable release.
+**Status:** Pre-release software, tested on Bazzite. The RC5 standalone bundle has also been installed successfully as a User Flatpak; other distribution and Steam-installation combinations are not yet verified.
 
 Ludra is a visual Steam and manually added game launcher for Linux.
 
@@ -16,7 +16,7 @@ Ludra is a visual Steam and manually added game launcher for Linux.
 ## Install the downloadable Flatpak bundle
 
 1. Visit [GitHub Releases](https://github.com/Denus011167/Ludra/releases), open the latest **published** release, and download its `.flatpak` bundle from **Assets**. Use the filename actually provided there.
-2. On Bazzite, open the downloaded file in the graphical Flatpak installer and choose a **User** installation.
+2. On Bazzite, open the downloaded file in the graphical Flatpak installer and choose a **User** installation. If the installer reports an existing installation, first check whether Ludra is installed for the User, System, or both.
 3. Alternatively, from the folder containing the downloaded bundle, run:
 
    ```bash
@@ -35,6 +35,28 @@ The installer has been tested by the project owner on two Bazzite computers. Oth
 ## Existing installations
 
 Installing the bundle with the same application ID can replace an existing user installation. Back up settings and manually added game entries before changing installations. This RC uses the application ID `io.github.Denus011167.Ludra`.
+
+## User vs. System installations
+
+Flatpak supports separate **User** and **System** installations. If Ludra appears to remain installed after an uninstall, a copy may exist in the other installation scope. Before removing anything, check:
+
+```bash
+flatpak list --app --columns=application,installation | grep -i ludra
+```
+
+To remove a User installation only:
+
+```bash
+flatpak uninstall --user io.github.Denus011167.Ludra
+```
+
+To remove a System installation only (only if you intend to):
+
+```bash
+flatpak uninstall --system io.github.Denus011167.Ludra
+```
+
+Neither command should be used blindly, and **do not use `--delete-data`** if you want to preserve your settings and manually added entries. The recommended installation method for the GitHub bundle is **User**.
 
 ## Updating
 
