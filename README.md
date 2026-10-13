@@ -4,7 +4,7 @@
 
 Ludra is a visual game launcher for Linux, built with Python and GTK4. It brings Steam games and manually added games together in a customizable gallery.
 
-**Current published release:** [1.0.0 RC4 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc4). **RC5 has passed local Bazzite testing and is being prepared for publication**; downloads will be linked once published.
+**Current published release:** [1.0.0 RC5 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc5).
 
 Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux distributions and Steam installations have not yet been comprehensively tested.
 
@@ -18,7 +18,7 @@ Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux 
 - Use keyboard shortcuts and configurable launcher preferences.
 
 
-## What's new in RC5 (pending publication)
+## What's new in RC5
 
 - Unified the window close buttons in Preferences and About with Ludra's visual styling.
 - Added subtle hover feedback to slider handles.
@@ -44,7 +44,7 @@ Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux 
 
 ## Install
 
-Download the latest **published** bundle from [GitHub Releases](https://github.com/Denus011167/Ludra/releases). RC5 will appear there only after its release assets have been uploaded and verified.
+Download [Ludra 1.0.0 RC5](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc5) from GitHub Releases.
 
 The release provides:
 - A `.flatpak` bundle for installing the application.
@@ -85,6 +85,6 @@ Please avoid sharing API keys, personal account details or sensitive logs in iss
 
 ## Publication status
 
-Ludra remains in **pre-release**. RC4 is currently published; RC5 is undergoing release preparation and should not be considered available until its assets are posted on [GitHub Releases](https://github.com/Denus011167/Ludra/releases).
+Ludra 1.0.0 RC5 is available as a **pre-release** on [GitHub Releases](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc5).
 
 Availability on GitHub does not imply availability on Flathub or Bazaar. Flathub distribution, if pursued, requires a separate review and compliance with its submission policies.
