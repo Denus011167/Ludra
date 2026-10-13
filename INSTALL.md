@@ -1,6 +1,6 @@
 # Installing Ludra on Linux
 
-**Release:** Latest published release (RC5 in preparation)  
+**Release:** Ludra 1.0.0 RC5 (pre-release)  
 **Architecture:** x86_64  
 **Status:** Pre-release software, tested on Bazzite. The RC5 standalone bundle has also been installed successfully as a User Flatpak; other distribution and Steam-installation combinations are not yet verified.
 
