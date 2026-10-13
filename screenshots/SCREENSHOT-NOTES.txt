@@ -2,7 +2,7 @@
 
 Screenshots of Ludra, a visual game launcher for Linux built with Python and GTK4.
 
-**Current release:** [Ludra 1.0.0 RC3](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc3)
+**Current releases:** See [GitHub Releases](https://github.com/Denus011167/Ludra/releases) for the latest published version.
 
 ## About these screenshots
 
@@ -10,7 +10,7 @@ The screenshots in this directory were supplied by the project owner and show Lu
 
 They illustrate aspects of the application such as its preferences, appearance customization, game-cover management and other interface features.
 
-Some screenshots may show earlier development versions and may differ slightly from the latest release.
+Screenshots reflect Ludra's interface at the time they were captured. Individual screens may change as the application evolves.
 
 ## Artwork and privacy
 
