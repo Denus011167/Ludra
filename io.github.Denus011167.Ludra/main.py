@@ -18,7 +18,21 @@ gi.require_version("GdkPixbuf", "2.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf, Gio, GLib
 
 APP_ID = "io.github.Denus011167.Ludra"
-APP_VERSION = "1.0.0-rc4"
+# This file is packaged into /app/share/ludra/VERSION by flatpak.yml.
+_VERSION_PATHS = (Path("/app/share/ludra/VERSION"), Path(__file__).resolve().parent / "VERSION")
+def _read_app_version():
+    for path in _VERSION_PATHS:
+        try:
+            value = path.read_text(encoding="utf-8").strip()
+            if re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:-rc[0-9]+)?", value):
+                return value
+        except OSError:
+            pass
+    return "unknown"
+
+APP_VERSION = _read_app_version()
+def _about_version():
+    return "Version " + APP_VERSION.upper().replace("-RC", " RC")
 
 NON_GAME_NAMES = {
     "proton", "proton experimental", "proton hotfix",
@@ -829,15 +843,15 @@ class Ludra(Gtk.Application):
         self.settings.setdefault("title_background", "Dark")
         self.settings.setdefault("grid_spacing", 16)
         self.settings.setdefault("shadow_intensity", 42)
-        self.settings.setdefault("window_width", 1440)
-        self.settings.setdefault("window_height", 900)
+        self.settings.setdefault("window_width", 900)
+        self.settings.setdefault("window_height", 650)
         self.settings.setdefault("window_maximized", False)
         # Keep the last normal allocation in memory. GTK/KWin can tear down a
         # window before a final close callback has useful geometry, so window
         # persistence must not depend on that one event alone.
         self._last_normal_window_size = (
-            max(640, int(self.settings.get("window_width", 1440))),
-            max(240, int(self.settings.get("window_height", 900))),
+            max(640, int(self.settings.get("window_width", 900))),
+            max(240, int(self.settings.get("window_height", 650))),
         )
         self._last_window_maximized = bool(self.settings.get("window_maximized", False))
         self.custom_games = load_json(custom_games_path(), [])
@@ -856,8 +870,8 @@ class Ludra(Gtk.Application):
     def show_library(self):
         self.window = Gtk.ApplicationWindow(application=self)
         self.window.set_title("Ludra")
-        saved_width = max(640, int(self.settings.get("window_width", 1440)))
-        saved_height = max(240, int(self.settings.get("window_height", 900)))
+        saved_width = max(640, int(self.settings.get("window_width", 900)))
+        saved_height = max(240, int(self.settings.get("window_height", 650)))
         self.window.set_default_size(saved_width, saved_height)
         # Test107: Test42's 430px hard minimum prevented vertical resizing when
         # the gallery is compact. Permit a short window without changing the
@@ -1125,7 +1139,14 @@ class Ludra(Gtk.Application):
         d.set_decorated(True)
         pref_header = Gtk.HeaderBar()
         pref_header.add_css_class("ludra-preferences-titlebar")
-        pref_header.set_show_title_buttons(True)
+        pref_header.set_show_title_buttons(False)
+        # RC5: Custom close control; avoids GTK's native circular hover overlay.
+        pref_close = Gtk.Button.new_from_icon_name("window-close-symbolic")
+        pref_close.add_css_class("ludra-custom-title-close")
+        pref_close.set_tooltip_text("Close Preferences")
+        pref_close.set_size_request(30, 30)
+        pref_close.connect("clicked", lambda *_: d.close())
+        pref_header.pack_end(pref_close)
         # Test117: a modest gear next to the title; GTK keeps native
         # centered-title/headerbar mechanics on KDE Plasma Wayland.
         pref_title_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=7)
@@ -1608,7 +1629,7 @@ class Ludra(Gtk.Application):
             return lab
 
         about_line("Your games. One place.", "ludra-about-tagline")
-        about_line("Version 1.0.0 RC4", "dim-label", 7)
+        about_line(_about_version(), "dim-label", 7)
         about_line("A simple, visual game launcher for Linux.", None, 1)
         about_line("Created by Denus01", None, 5)
         about_line("With assistance by ChatGPT", "dim-label")
@@ -1656,7 +1677,13 @@ class Ludra(Gtk.Application):
             # Match the Preferences window's real GTK titlebar and controls.
             collage_header = Gtk.HeaderBar()
             collage_header.add_css_class("ludra-preferences-titlebar")
-            collage_header.set_show_title_buttons(True)
+            collage_header.set_show_title_buttons(False)
+            collage_close = Gtk.Button.new_from_icon_name("window-close-symbolic")
+            collage_close.add_css_class("ludra-custom-title-close")
+            collage_close.set_tooltip_text("Close")
+            collage_close.set_size_request(30, 30)
+            collage_close.connect("clicked", lambda *_: viewer.close())
+            collage_header.pack_end(collage_close)
             collage_title = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=7)
             collage_title.set_halign(Gtk.Align.CENTER)
             collage_title.set_valign(Gtk.Align.CENTER)
@@ -2119,7 +2146,7 @@ class Ludra(Gtk.Application):
 
         tagline = Gtk.Label(label="Your games. One place.")
         box.append(tagline)
-        version = Gtk.Label(label="Version 1.0.0 RC4")
+        version = Gtk.Label(label=_about_version())
         version.add_css_class("dim-label")
         box.append(version)
         desc = Gtk.Label(label="A simple, visual game launcher for Linux.")
@@ -2949,7 +2976,8 @@ class Ludra(Gtk.Application):
         }
         .ludra-floating-header { padding: 5px 6px 5px 6px; background: transparent; }
         .ludra-window-controls { margin-left: 3px; }
-        .ludra-window-button { min-width: 34px; min-height: 34px; padding: 0; border-radius: 12px; background: rgba(72,78,88,.54); background-image: none; border: 1px solid transparent; box-shadow: none; outline: none; }
+        .ludra-window-button { min-width: 34px; min-height: 34px; padding: 0; border-radius: 12px; background: rgba(72,78,88,.54); background-image: none; border: 1px solid rgba(255,255,255,.10); box-shadow: none; outline: none; }
+        .ludra-window-button image { background: transparent; background-image: none; box-shadow: none; border: none; outline: none; }
         .ludra-window-button:hover { background: rgba(35,47,64,.70); }
         .ludra-identity { margin-right: 2px; }
         .ludra-gamepad { opacity: 1; }
@@ -3192,6 +3220,19 @@ class Ludra(Gtk.Application):
             outline: none;
             outline-offset: 0;
         }
+        /* RC5: give slider handles the same restrained visual response as Ludra's controls. */
+        .ludra-preferences-window scale slider:hover,
+        .ludra-preferences-window scale:hover slider {
+            background-color: rgba(178,169,205,.98);
+            border-color: rgba(240,226,255,.62);
+            box-shadow: 0 0 0 2px rgba(216,187,251,.16), 0 0 12px rgba(204,163,248,.34);
+        }
+        .ludra-preferences-window scale slider:active,
+        .ludra-preferences-window scale:active slider {
+            background-color: rgba(202,185,227,1);
+            border-color: rgba(250,240,255,.84);
+            box-shadow: 0 0 0 2px rgba(216,187,251,.25), 0 0 15px rgba(211,173,255,.43);
+        }
         .custom-background-plus { font-size: 34px; font-weight: 300; }
         .no-background-preview { border-radius: 7px; background: alpha(@view_fg_color, .035); }
         .no-background-mark { font-size: 30px; font-weight: 300; color: alpha(@view_fg_color, .62); }
@@ -3282,6 +3323,115 @@ class Ludra(Gtk.Application):
         .game-button:hover .game-title, .game-button.hovered .game-title { color: #ffffff; }
         .game-button:focus-visible .cover-frame { box-shadow: 0 10px 20px rgba(0,0,0,.72); }
         grid { background: transparent; }
+        /* RC4 hover polish: clearly visible, layout-neutral feedback. */
+        .ludra-floating-header .ludra-main-pref-compact:hover,
+        .ludra-floating-header .ludra-refresh-button:hover,
+        .ludra-floating-header .ludra-window-button:hover {
+            background-color: rgba(128,145,170,.86);
+            background-image: none;
+            border-color: rgba(232,240,255,.50);
+            box-shadow: 0 0 0 1px rgba(222,235,255,.24), 0 0 14px rgba(195,214,247,.42);
+        }
+        /* RC5 diagnostic v7: illuminate REFRESH with a radial background gradient
+           instead of GTK's box-shadow renderer. Preserve the base radius and
+           transparent border. The glow is deliberately contained inside the
+           control for this diagnostic; if Polaris disappears we can implement
+           an external halo as an independent rendering layer later. */
+        .ludra-floating-header .ludra-refresh-button:hover,
+        .ludra-floating-header .ludra-refresh-button:active {
+            background-color: rgba(128,145,170,.86);
+            background-image: radial-gradient(circle at center,
+                rgba(202,220,255,.34) 0%,
+                rgba(183,208,248,.20) 57%,
+                rgba(183,208,248,.06) 84%,
+                rgba(183,208,248,0) 100%);
+            border-color: transparent;
+            box-shadow: none;
+            outline: none;
+            outline-offset: 0;
+        }
+        .preferences-nav-button:hover,
+        .preferences-close-button:hover,
+        .preferences-nav-button:checked:hover {
+            background: rgba(127,145,169,.84);
+            border-color: rgba(226,237,255,.52);
+            box-shadow: 0 0 0 1px rgba(215,231,255,.20), 0 0 14px rgba(184,210,249,.34);
+        }
+        headerbar.ludra-preferences-titlebar button:hover {
+            background: rgba(127,145,169,.84);
+            border-color: rgba(226,237,255,.52);
+            box-shadow: 0 0 12px rgba(184,210,249,.34);
+        }
+        window.ludra-preferences-window .ludra-toolbar-control:hover {
+            background: rgba(127,145,169,.84);
+            border-color: rgba(226,237,255,.52);
+            box-shadow: 0 0 12px rgba(184,210,249,.34);
+        }
+        /* RC5: explicit buttons instead of GTK-generated native titlebuttons.
+           Match Ludra controls without the internal circular native hover. */
+        headerbar.ludra-preferences-titlebar button.ludra-custom-title-close,
+        headerbar.ludra-preferences-titlebar button.ludra-custom-title-close:hover,
+        headerbar.ludra-preferences-titlebar button.ludra-custom-title-close:active {
+            min-width: 30px;
+            min-height: 30px;
+            padding: 0;
+            margin: 0 4px 0 0;
+            border-radius: 10px;
+            background-image: none;
+            outline: none;
+        }
+        headerbar.ludra-preferences-titlebar button.ludra-custom-title-close image {
+            background: transparent;
+            background-image: none;
+            border: none;
+            box-shadow: none;
+            outline: none;
+        }
+        /* RC5 close-button test: override GTK native titlebutton's dark round
+           hover layer. Preferences/About and the collage viewer have native
+           headerbar buttons; the main window has custom ones. */
+        headerbar.ludra-preferences-titlebar button.titlebutton,
+        headerbar.ludra-preferences-titlebar button.titlebutton.close {
+            background-image: none;
+            border-radius: 10px;
+        }
+        headerbar.ludra-preferences-titlebar button.titlebutton:hover,
+        headerbar.ludra-preferences-titlebar button.titlebutton.close:hover,
+        headerbar.ludra-preferences-titlebar button.titlebutton:active,
+        headerbar.ludra-preferences-titlebar button.titlebutton.close:active {
+            background-image: none;
+            background-color: rgba(127,145,169,.84);
+            border: 1px solid rgba(226,237,255,.52);
+            border-radius: 10px;
+            box-shadow: 0 0 0 1px rgba(215,231,255,.20), 0 0 12px rgba(184,210,249,.34);
+        }
+        headerbar.ludra-preferences-titlebar button.titlebutton image {
+            background: transparent;
+            background-image: none;
+            box-shadow: none;
+            border: none;
+        }
+
+        /* RC4 final interactive hover polish */
+        window.ludra-preferences-window button.background-choice:hover {
+            background-color: rgba(124,145,177,.78);
+            background-image: none;
+            box-shadow: 0 0 0 1px rgba(226,237,255,.50),
+                        0 0 15px rgba(184,210,249,.40);
+        }
+        window.ludra-preferences-window button.background-choice-selected:hover {
+            outline: 2px solid @accent_color;
+            outline-offset: 1px;
+        }
+        window.ludra-preferences-window button.ludra-background-adjustment-reset:hover,
+        window.ludra-collage-viewer headerbar.ludra-preferences-titlebar button:hover,
+        window.ludra-collage-viewer button.ludra-toolbar-control:hover {
+            background-color: rgba(127,145,169,.88);
+            background-image: none;
+            border-color: rgba(226,237,255,.55);
+            box-shadow: 0 0 0 1px rgba(215,231,255,.25),
+                        0 0 13px rgba(184,210,249,.42);
+        }
         """ + "\n.ludra-main-window { " + window_bg_css + " }\n" + "\n.ludra-preferences-window { " + preferences_bg_css + " }\n" + "\n.ludra-collage-viewer { " + preferences_bg_css + " }\n"))
         # Experiment: override host GTK CSS for window corners only.
         if not hasattr(self, "_window_corners_provider"):

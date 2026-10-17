@@ -1,14 +1,42 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <component type="desktop-application">
   <id>io.github.Denus011167.Ludra</id>
   <name>Ludra</name>
-  <summary>Your games. One place.</summary>
+  <summary>Your games. One place</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
   <description>
     <p>A simple, visual game launcher for Linux with portrait artwork, Steam integration, SteamGridDB support, manual covers, hidden games, launch overrides, and manually added games.</p>
   </description>
   <launchable type="desktop-id">io.github.Denus011167.Ludra.desktop</launchable>
-  <provides><binary>ludra</binary></provides>
-  <releases><release version="1.0.0-rc2" date="2026-10-10"/></releases>
+  <provides>
+    <binary>ludra</binary>
+  </provides>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://denus011167.github.io/Ludra-Website/assets/ludra-main.png</image>
+      <caption>Ludra game library</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://denus011167.github.io/Ludra-Website/assets/general.png</image>
+      <caption>General preferences</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://denus011167.github.io/Ludra-Website/assets/background.png</image>
+      <caption>Background preferences</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://denus011167.github.io/Ludra-Website/assets/library.png</image>
+      <caption>Library preferences</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="1.0.0" date="2026-10-17" />
+  </releases>
+  <url type="homepage">https://denus011167.github.io/Ludra-Website/</url>
+  <url type="bugtracker">https://github.com/Denus011167/Ludra/issues</url>
+  <developer id="io.github.denus011167">
+    <name>Ludra Project</name>
+  </developer>
+  <content_rating type="oars-1.0" />
 </component>

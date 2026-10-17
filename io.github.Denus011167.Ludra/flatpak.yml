@@ -25,6 +25,7 @@ modules:
     buildsystem: simple
     build-commands:
       - install -Dm755 main.py /app/bin/ludra
+      - install -Dm644 VERSION /app/share/ludra/VERSION
       - install -Dm644 io.github.Denus011167.Ludra.desktop /app/share/applications/io.github.Denus011167.Ludra.desktop
       - install -Dm644 io.github.Denus011167.Ludra.metainfo.xml /app/share/metainfo/io.github.Denus011167.Ludra.metainfo.xml
       - install -Dm644 ludra-icon.png /app/share/icons/hicolor/512x512/apps/io.github.Denus011167.Ludra.png
