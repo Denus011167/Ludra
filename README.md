@@ -4,7 +4,7 @@
 
 Ludra is a visual game launcher for Linux, built with Python and GTK4. It brings Steam games and manually added games together in a customizable gallery.
 
-**Current published release:** [1.0.0 RC5 (pre-release)](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0-rc5).
+**Current stable release:** [v1.0.0](https://github.com/Denus011167/Ludra/releases/tag/v1.0.0).
 
 Tested on two Bazzite computers using Bazzite's preinstalled Steam. Other Linux distributions and Steam installations have not yet been comprehensively tested.
 
